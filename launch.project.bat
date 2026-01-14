@@ -7,7 +7,7 @@ start cmd /k "php artisan serve"
  
 :: 2. Arrancar el compilador de Vite (React) en otra ventana
 start cmd /k "npm run dev"
- 
+ npm run dev
 :: 3. Opcional: Abrir el navegador automáticamente tras 2 segundos
 timeout /t 2 /nobreak >nul
 start http://127.0.0.1:8000
