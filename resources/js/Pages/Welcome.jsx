@@ -1,4 +1,5 @@
 export default function Welcome() {
+    // 0. Importaciones
     // 1. Definimos variables (lógica de JavaScript)
     const nombreUsuario = "Abel Blanco";
     const tareasPendientes = ["Instalar Laravel", "Configurar React", "Aprender Tailwind", "Terminar tareas de JC"];
