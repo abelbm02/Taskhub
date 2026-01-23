@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 export default function Welcome() {
-    const nombreUsuario = "Sergio Montes";
+    const nombreUsuario = "Abel Blanco";
 
     // 2. Definimos el estado: [valor, función_para_cambiarlo]
     // Inicializamos con el array de tareas que ya teníamos
@@ -12,6 +12,9 @@ export default function Welcome() {
         "Aprender Tailwind"
     ]);
 
+    // Variable de estado contador que empieza en 0
+    const [contador, setContador] = useState(0);
+
     // 3. Función para añadir una tarea nueva
     const añadirTarea = () => {
         const nueva = "Nueva tarea de prueba " + (tareas.length + 1);
@@ -19,6 +22,9 @@ export default function Welcome() {
         // IMPORTANTE: En React no usamos .push(). 
         // Creamos un nuevo array con las antiguas + la nueva.
         setTareas([...tareas, nueva]);
+
+        // Incrementamos el contador (+1)
+        setContador(contador + 1);
     };
 
     return (
@@ -29,6 +35,9 @@ export default function Welcome() {
 
             <div className="mt-8 w-full max-w-md bg-white p-6 rounded-2xl shadow-lg">
                 <h2 className="text-xl font-bold mb-4 text-slate-800">Tareas ({tareas.length}):</h2>
+
+                {/* Mostramos el contador */}
+                <p className="text-sm text-slate-500 mb-3">Tareas añadidas: {contador}</p>
 
                 <ul className="space-y-3">
                     {tareas.map((tarea, index) => (
@@ -41,11 +50,13 @@ export default function Welcome() {
 
             <div className="mt-10">
                 {/* 4. Conectamos la función al evento onClick */}
+                {/* Condicional - si contador >= 10, cambia a rojo y texto diferente */}
                 <button
                     onClick={añadirTarea}
-                    className="bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 shadow-md transition active:scale-95"
+                    disabled={contador >= 10}
+                    className={`${contador >= 10 ? 'bg-red-500' : 'bg-indigo-500 hover:bg-indigo-600'} text-white px-6 py-2 rounded-lg shadow-md transition active:scale-95`}
                 >
-                    Añadir Tarea Aleatoria
+                    {contador >= 10 ? '¡Lista Llena!' : 'Añadir Tarea Aleatoria'}
                 </button>
             </div>
         </div>
