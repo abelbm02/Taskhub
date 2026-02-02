@@ -4,14 +4,15 @@ export default function TaskItem({ task, onToggle, onUpdate }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(task.title);
 
-    const handleDoubleClick = () => {
+    const handleStartEditing = () => {
         setIsEditing(true);
         setEditValue(task.title);
     };
 
     const handleBlur = () => {
-        if (editValue.trim().length > 0) {
-            onUpdate(task.id, editValue.trim());
+        const trimmedValue = editValue.trim();
+        if (trimmedValue.length > 0) {
+            onUpdate(task.id, trimmedValue);
         } else {
             setEditValue(task.title);
         }
@@ -28,35 +29,39 @@ export default function TaskItem({ task, onToggle, onUpdate }) {
     };
 
     return (
-        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-all group">
-            <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => onToggle(task.id)}
-                className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
-            />
-
-            {isEditing ? (
+        <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-stone-100 hover:border-lime-200 hover:shadow-sm transition-all group">
+            <div className="flex items-center justify-center">
                 <input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                    autoFocus
-                    className="flex-1 px-2 py-1 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => onToggle(task.id)}
+                    className="w-6 h-6 rounded-lg border-stone-300 text-lime-500 focus:ring-lime-500 focus:ring-offset-0 cursor-pointer transition-colors"
                 />
-            ) : (
-                <span
-                    onDoubleClick={handleDoubleClick}
-                    className={`flex-1 cursor-pointer select-none ${task.completed
-                            ? 'line-through text-slate-400'
-                            : 'text-slate-700'
-                        }`}
-                >
-                    {task.title}
-                </span>
-            )}
+            </div>
+
+            <div className="flex-1 overflow-hidden">
+                {isEditing ? (
+                    <input
+                        type="text"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onBlur={handleBlur}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                        className="w-full px-0 py-0 text-lg border-b border-lime-500 bg-transparent focus:ring-0 focus:outline-none text-stone-900 font-medium"
+                    />
+                ) : (
+                    <span
+                        onClick={handleStartEditing}
+                        className={`block w-full text-lg cursor-pointer select-none transition-all truncate font-medium ${task.completed
+                            ? 'line-through text-stone-300 opacity-60'
+                            : 'text-stone-700 hover:text-lime-600'
+                            }`}
+                    >
+                        {task.title}
+                    </span>
+                )}
+            </div>
         </div>
     );
 }
