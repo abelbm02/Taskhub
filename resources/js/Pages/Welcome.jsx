@@ -1,53 +1,58 @@
-import { useState } from 'react';
+import { useForm, router } from '@inertiajs/react';
 import TaskItem from '../Components/TaskItem';
 import TaskStats from '../Components/TaskStats';
 
-export default function Welcome() {
-    const [tasks, setTasks] = useState([]);
-    const [inputValue, setInputValue] = useState('');
+export default function Welcome({ tasks = [] }) {
+    const { data, setData, post, reset, processing } = useForm({
+        title: '',
+    });
 
     // Añadir nueva tarea
-    const handleAddTask = () => {
-        if (inputValue.trim().length > 0) {
-            const newTask = {
-                id: Date.now(),
-                title: inputValue.trim(),
-                completed: false
-            };
-            setTasks([...tasks, newTask]);
-            setInputValue('');
-        }
-    };
-
-    // Manejar Enter en el input
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleAddTask();
+    const handleAddTask = (e) => {
+        e.preventDefault();
+        if (data.title.trim().length > 0) {
+            post(route('tasks.store'), {
+                onSuccess: () => reset(),
+                preserveScroll: true,
+            });
         }
     };
 
     // Marcar/desmarcar tarea como completada
-    const handleToggleTask = (id) => {
-        setTasks(tasks.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
-        ));
+    const handleToggleTask = (id, isCompleted) => {
+        router.patch(route('tasks.update', id), {
+            is_completed: !isCompleted
+        }, {
+            preserveScroll: true
+        });
     };
 
     // Actualizar título de tarea
     const handleUpdateTask = (id, newTitle) => {
-        setTasks(tasks.map(task =>
-            task.id === id ? { ...task, title: newTitle } : task
-        ));
+        router.patch(route('tasks.update', id), {
+            title: newTitle
+        }, {
+            preserveScroll: true
+        });
+    };
+
+    // Eliminar tarea
+    const handleDeleteTask = (id) => {
+        router.delete(route('tasks.destroy', id), {
+            preserveScroll: true
+        });
     };
 
     // Limpiar tareas completadas
     const handleClearCompleted = () => {
-        setTasks(tasks.filter(task => !task.completed));
+        router.delete(route('tasks.clearCompleted'), {
+            preserveScroll: true
+        });
     };
 
     // Calcular estadísticas
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.completed).length;
+    const completedTasks = tasks.filter(task => task.is_completed).length;
 
     return (
         <div className="min-h-screen bg-[#efe4d5] py-12 px-4 font-sans text-stone-900">
@@ -70,27 +75,28 @@ export default function Welcome() {
                 {/* Card Principal */}
                 <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-stone-100 p-8 md:p-10 mb-8">
                     {/* Input y Botón Añadir */}
-                    <div className="relative flex flex-col md:flex-row gap-4 mb-10">
+                    <form onSubmit={handleAddTask} className="relative flex flex-col md:flex-row gap-4 mb-10">
                         <div className="relative flex-1 group">
                             <input
                                 type="text"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyPress={handleKeyPress}
+                                value={data.title}
+                                onChange={(e) => setData('title', e.target.value)}
                                 placeholder="Añadir nueva tarea"
-                                className="w-full pl-6 pr-4 py-4 bg-stone-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-lime-500 focus:outline-none transition-all text-lg placeholder:text-stone-400 font-medium"
+                                disabled={processing}
+                                className="w-full pl-6 pr-4 py-4 bg-stone-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-lime-500 focus:outline-none transition-all text-lg placeholder:text-stone-400 font-medium disabled:opacity-50"
                             />
                         </div>
                         <button
-                            onClick={handleAddTask}
-                            className="bg-lime-500 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-lime-600 hover:shadow-xl hover:shadow-lime-100 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            type="submit"
+                            disabled={processing || !data.title.trim()}
+                            className="bg-lime-500 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-lime-600 hover:shadow-xl hover:shadow-lime-100 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="12 4v16m8-8H4" />
                             </svg>
                             Añadir
                         </button>
-                    </div>
+                    </form>
 
                     {/* Lista de Tareas */}
                     <div className="space-y-4 mb-10 min-h-[100px]">
@@ -105,8 +111,9 @@ export default function Welcome() {
                                     <TaskItem
                                         key={task.id}
                                         task={task}
-                                        onToggle={handleToggleTask}
-                                        onUpdate={handleUpdateTask}
+                                        onToggle={() => handleToggleTask(task.id, task.is_completed)}
+                                        onUpdate={(newTitle) => handleUpdateTask(task.id, newTitle)}
+                                        onDelete={() => handleDeleteTask(task.id)}
                                     />
                                 ))}
                             </div>
